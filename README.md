@@ -186,3 +186,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 3. Multi-language support
 4. Voice-based interactions
 5. AI-powered product recommendations 
+
+## Demo video [unable to upload the video]
