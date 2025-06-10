@@ -2,6 +2,40 @@
 
 A modern, interactive sales chatbot for e-commerce platforms that enhances customer experience through intelligent product search and purchase assistance.
 
+## Recent Changes and Updates
+
+### New Environment Variables
+Add these to your `.env` file:
+```
+REACT_APP_API_URL=http://localhost:5000    # Base URL for API calls
+REACT_APP_WS_URL=ws://localhost:5000/ws    # WebSocket URL for real-time chat
+```
+
+### New Features Added
+1. **Real-time Chat System**
+   - WebSocket integration for instant messaging
+   - Message history persistence
+   - Auto-scrolling chat window
+   - User/support message differentiation
+
+2. **Product Management**
+   - Redux state management for products
+   - Cart functionality
+   - Product search with API integration
+   - Loading states and error handling
+
+3. **Order Management**
+   - Order history with expandable details
+   - Status tracking with color indicators
+   - API integration for order data
+   - Date formatting and display
+
+### API Integration
+- Replaced mock data with actual API calls
+- Added proper error handling
+- Implemented loading states
+- Added authentication token management
+
 ## Features
 
 - 🤖 Interactive chatbot interface for product search and assistance

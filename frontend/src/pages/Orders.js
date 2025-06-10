@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Container,
   Paper,
@@ -13,35 +14,15 @@ import {
   Box,
   IconButton,
   Collapse,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-
-// Mock data - replace with actual API call
-const mockOrders = [
-  {
-    id: 'ORD001',
-    date: '2024-03-15',
-    total: 299.99,
-    status: 'Delivered',
-    items: [
-      { name: 'Product 1', quantity: 2, price: 149.99 },
-      { name: 'Product 2', quantity: 1, price: 99.99 },
-    ],
-  },
-  {
-    id: 'ORD002',
-    date: '2024-03-14',
-    total: 199.99,
-    status: 'Processing',
-    items: [
-      { name: 'Product 3', quantity: 1, price: 199.99 },
-    ],
-  },
-];
+import { fetchOrders } from '../store/slices/orderSlice';
 
 const OrderRow = ({ order }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -65,7 +46,7 @@ const OrderRow = ({ order }) => {
           </IconButton>
         </TableCell>
         <TableCell>{order.id}</TableCell>
-        <TableCell>{order.date}</TableCell>
+        <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
         <TableCell>${order.total.toFixed(2)}</TableCell>
         <TableCell>
           <Chip
@@ -113,6 +94,29 @@ const OrderRow = ({ order }) => {
 };
 
 const Orders = () => {
+  const dispatch = useDispatch();
+  const { items, loading, error } = useSelector((state) => state.orders);
+
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -130,7 +134,7 @@ const Orders = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockOrders.map((order) => (
+            {items.map((order) => (
               <OrderRow key={order.id} order={order} />
             ))}
           </TableBody>

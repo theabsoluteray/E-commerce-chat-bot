@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Container,
   Grid,
@@ -11,59 +12,55 @@ import {
   Rating,
   TextField,
   InputAdornment,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-
-// Mock data - replace with actual API call
-const mockProducts = [
-  {
-    id: 1,
-    name: 'Premium Headphones',
-    price: 199.99,
-    rating: 4.5,
-    image: 'https://via.placeholder.com/300x200',
-    description: 'High-quality wireless headphones with noise cancellation.',
-  },
-  {
-    id: 2,
-    name: 'Smart Watch',
-    price: 299.99,
-    rating: 4.2,
-    image: 'https://via.placeholder.com/300x200',
-    description: 'Feature-rich smartwatch with health monitoring.',
-  },
-  {
-    id: 3,
-    name: 'Wireless Earbuds',
-    price: 149.99,
-    rating: 4.7,
-    image: 'https://via.placeholder.com/300x200',
-    description: 'True wireless earbuds with premium sound quality.',
-  },
-  {
-    id: 4,
-    name: 'Bluetooth Speaker',
-    price: 89.99,
-    rating: 4.3,
-    image: 'https://via.placeholder.com/300x200',
-    description: 'Portable Bluetooth speaker with 360° sound.',
-  },
-];
+import {
+  fetchProducts,
+  searchProducts,
+  addToCart,
+  setSearchQuery,
+} from '../store/slices/productSlice';
 
 const Products = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [cart, setCart] = useState([]);
+  const dispatch = useDispatch();
+  const { items, loading, error, searchQuery } = useSelector((state) => state.products);
 
-  const handleAddToCart = (product) => {
-    setCart([...cart, product]);
-    // Here you would typically update the cart state in your global state management
-    // and possibly make an API call to update the backend
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    dispatch(setSearchQuery(query));
+    if (query.trim()) {
+      dispatch(searchProducts(query));
+    } else {
+      dispatch(fetchProducts());
+    }
   };
 
-  const filteredProducts = mockProducts.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleAddToCart = (product) => {
+    dispatch(addToCart(product));
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -76,7 +73,7 @@ const Products = () => {
           variant="outlined"
           placeholder="Search products..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearch}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -88,7 +85,7 @@ const Products = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {filteredProducts.map((product) => (
+        {items.map((product) => (
           <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
             <Card
               sx={{
